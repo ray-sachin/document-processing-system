@@ -1,0 +1,25 @@
+Meeting Notes - Q1 Planning Session
+Date: January 15, 2026
+Attendees: Sarah, Mike, Lisa, Tom
+
+AGENDA:
+1. Review Q4 2025 performance
+2. Set Q1 2026 goals
+3. Discuss resource allocation
+4. Plan upcoming product releases
+
+KEY DECISIONS:
+- Approved budget increase of 15% for engineering team
+- New product launch scheduled for March 15, 2026
+- Hiring 3 new developers and 2 QA engineers
+- Migration to cloud infrastructure to begin February 1
+
+ACTION ITEMS:
+[ ] Sarah - Finalize hiring requirements by Jan 20
+[ ] Mike - Complete cloud architecture design by Jan 25
+[ ] Lisa - Prepare marketing campaign for product launch
+[ ] Tom - Update project timeline with new milestones
+
+NEXT MEETING: January 29, 2026 at 2:00 PM
+
+Notes prepared by: Lisa

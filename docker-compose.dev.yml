@@ -1,0 +1,38 @@
+# Development-only overrides
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # Only run infrastructure services for local development
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  # Disable application services in dev mode
+  # (run them locally with hot reload)
+  backend:
+    profiles:
+      - disabled
+
+  celery-worker:
+    profiles:
+      - disabled
+
+  celery-beat:
+    profiles:
+      - disabled
+
+  flower:
+    profiles:
+      - disabled
+
+  frontend:
+    profiles:
+      - disabled
+
+  nginx:
+    profiles:
+      - disabled

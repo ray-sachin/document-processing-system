@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 38% 97%;
+    --foreground: 219 29% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 219 29% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 219 29% 17%;
+    --primary: 209 61% 24%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 23% 94%;
+    --secondary-foreground: 219 29% 17%;
+    --muted: 42 24% 92%;
+    --muted-foreground: 214 15% 43%;
+    --accent: 202 37% 91%;
+    --accent-foreground: 219 29% 17%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 25% 86%;
+    --input: 215 25% 86%;
+    --ring: 209 61% 24%;
+    --radius: 0.9rem;
+  }
+
+  .dark {
+    --background: 218 27% 10%;
+    --foreground: 42 24% 94%;
+    --card: 220 23% 13%;
+    --card-foreground: 42 24% 94%;
+    --popover: 220 23% 13%;
+    --popover-foreground: 42 24% 94%;
+    --primary: 201 72% 61%;
+    --primary-foreground: 220 23% 13%;
+    --secondary: 216 18% 18%;
+    --secondary-foreground: 42 24% 94%;
+    --muted: 216 18% 18%;
+    --muted-foreground: 216 12% 69%;
+    --accent: 211 28% 19%;
+    --accent-foreground: 42 24% 94%;
+    --destructive: 0 67% 42%;
+    --destructive-foreground: 42 24% 94%;
+    --border: 216 18% 22%;
+    --input: 216 18% 22%;
+    --ring: 201 72% 61%;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), sans-serif;
+    background-image:
+      radial-gradient(circle at top left, rgba(32, 75, 110, 0.10), transparent 24rem),
+      radial-gradient(circle at bottom right, rgba(196, 167, 106, 0.10), transparent 20rem),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.82));
+    min-height: 100vh;
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono), monospace;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.16);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer utilities {
+  .page-grid {
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .surface-panel {
+    @apply border bg-background/85 shadow-sm backdrop-blur-sm;
+  }
+}

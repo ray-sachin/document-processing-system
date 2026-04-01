@@ -1,0 +1,33 @@
+# Sample Document for Testing
+
+## Introduction
+
+This is a sample text document for testing the Document Processing System. It contains various types of content that the system should be able to parse and extract information from.
+
+## Key Topics
+
+### Technology
+- Artificial Intelligence and Machine Learning
+- Cloud Computing and DevOps
+- Web Development and APIs
+
+### Business
+- Project Management
+- Agile Methodologies
+- Digital Transformation
+
+## Summary
+
+This document demonstrates the capability of the document processing system to extract:
+1. Document title
+2. Category (General/Technology/Business)
+3. Summary of content
+4. Keywords
+
+## Keywords
+
+document processing, text extraction, natural language processing, automation, testing
+
+## Conclusion
+
+The system should successfully parse this document and extract relevant metadata and content for review.
