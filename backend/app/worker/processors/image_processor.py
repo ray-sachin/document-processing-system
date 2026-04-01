@@ -3,22 +3,18 @@ Image Processor - Handle image files with simulated OCR
 """
 from typing import Dict, Any
 import io
-import base64
 
 from app.worker.processors.base import BaseProcessor
 from app.models.document import Document
+from app.services.ocr_service import ocr_service
 
 
 class ImageProcessor(BaseProcessor):
     """
     Processor for image files (PNG, JPG, JPEG, GIF).
     
-    Note: This implements simulated OCR for demonstration.
-    In production, you would use:
-    - Tesseract OCR
-    - Google Cloud Vision
-    - AWS Textract
-    - Azure Computer Vision
+    Uses RapidOCR when available, with a deterministic fallback so
+    image-heavy uploads still complete instead of failing silently.
     """
     
     def parse(self, content: bytes, filename: str) -> Dict[str, Any]:
@@ -55,20 +51,22 @@ class ImageProcessor(BaseProcessor):
             except Exception:
                 pass
             
-            # Simulated OCR - In production, use actual OCR
-            # For demo, we generate placeholder text based on image properties
-            simulated_text = self._simulate_ocr(filename, width, height, format_type)
+            ocr_result = ocr_service.extract_text_from_image(content)
+            raw_text = ocr_result["text"] or self._simulate_ocr(filename, width, height, format_type)
             
             return {
-                "raw_text": simulated_text,
+                "raw_text": raw_text,
                 "width": width,
                 "height": height,
                 "format": format_type,
                 "mode": mode,
                 "aspect_ratio": aspect_ratio,
                 "exif_data": exif_data,
-                "has_content": True,
-                "is_simulated": True
+                "has_content": bool(raw_text.strip()),
+                "is_simulated": not bool(ocr_result["text"]),
+                "ocr_engine": ocr_result["engine"],
+                "ocr_confidence": ocr_result["average_confidence"],
+                "ocr_line_count": ocr_result["line_count"],
             }
             
         except Exception as e:
@@ -145,8 +143,10 @@ In production, integrate with Tesseract, Google Vision, or AWS Textract.
                   f"{parsed_data.get('width', 0)}x{parsed_data.get('height', 0)} pixels. "
         
         if parsed_data.get("is_simulated"):
-            summary += "OCR text extraction simulated for demonstration."
-        
+            summary += "OCR fallback used a generated placeholder because no readable text was detected."
+        else:
+            summary += "Text extracted directly from the image."
+
         metadata = {
             "file_type": document.file_type,
             "file_size": document.file_size,
@@ -156,7 +156,10 @@ In production, integrate with Tesseract, Google Vision, or AWS Textract.
             "mode": parsed_data.get("mode"),
             "aspect_ratio": parsed_data.get("aspect_ratio", 0),
             "exif_data": parsed_data.get("exif_data", {}),
-            "ocr_simulated": parsed_data.get("is_simulated", True)
+            "ocr_simulated": parsed_data.get("is_simulated", True),
+            "ocr_engine": parsed_data.get("ocr_engine"),
+            "ocr_confidence": parsed_data.get("ocr_confidence"),
+            "ocr_line_count": parsed_data.get("ocr_line_count", 0),
         }
         
         return {

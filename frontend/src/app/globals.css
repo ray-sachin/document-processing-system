@@ -87,6 +87,10 @@
 }
 
 @layer utilities {
+  .app-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
   .page-grid {
     background-image:
       linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),

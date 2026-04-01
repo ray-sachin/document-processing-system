@@ -90,25 +90,33 @@ export default function DocumentsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       <Header />
-      <main className="flex-1 container py-8">
-        {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Documents Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
-              Upload, process, and manage your documents
-            </p>
-          </div>
-          <Link href="/upload">
-            <Button size="lg" className="gap-2 shadow-lg">
-              <Upload className="h-5 w-5" />
-              Upload Documents
-            </Button>
-          </Link>
-        </div>
+      <main className="app-shell flex-1 py-8">
+        <section className="surface-panel page-grid mb-8 overflow-hidden rounded-[28px] border-border/70 p-6 sm:p-8">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-2xl">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                Review Workspace
+              </p>
+              <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                Documents Dashboard
+              </h1>
+              <p className="mt-3 max-w-xl text-base text-muted-foreground sm:text-lg">
+                Track uploads, watch processing progress, and move reviewed files toward export without losing context.
+              </p>
+            </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/upload">
+                <Button size="lg" className="h-12 gap-2 px-6 shadow-lg shadow-primary/15">
+                  <Upload className="h-5 w-5" />
+                  Upload Documents
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatsCard
             icon={<FileText className="h-5 w-5" />}
             label="Total Documents"
@@ -137,11 +145,10 @@ export default function DocumentsPage() {
             color="text-red-600"
             bgColor="bg-red-50"
           />
-        </div>
+        </section>
 
-        {/* Document List */}
-        <Card className="shadow-sm">
-          <CardContent className="p-6">
+        <Card className="overflow-hidden rounded-[28px] border-border/80 bg-background/85 shadow-sm">
+          <CardContent className="p-5 sm:p-7">
             <DocumentList
               documents={documents}
               total={totalDocuments}
@@ -180,15 +187,15 @@ function StatsCard({
   bgColor: string;
 }) {
   return (
-    <Card className="shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${bgColor} ${color}`}>
+    <Card className="overflow-hidden rounded-3xl border-border/70 bg-background/90 shadow-sm">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-4">
+          <div className={`rounded-2xl p-3 ${bgColor} ${color}`}>
             {icon}
           </div>
-          <div>
-            <p className="text-2xl font-bold">{value}</p>
-            <p className="text-xs text-muted-foreground">{label}</p>
+          <div className="min-w-0">
+            <p className="text-3xl font-bold leading-none">{value}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{label}</p>
           </div>
         </div>
       </CardContent>

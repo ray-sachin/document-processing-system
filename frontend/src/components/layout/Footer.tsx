@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="border-t border-border/70 bg-background/75 py-6 backdrop-blur">
-      <div className="container flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      <div className="app-shell flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <p className="text-sm font-medium">Document Processing System</p>
           <p className="text-sm text-muted-foreground">

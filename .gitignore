@@ -92,3 +92,7 @@ celerybeat.pid
 *.bak
 *.tmp
 .cache/
+
+# Keep application source libraries tracked
+!frontend/src/lib/
+!frontend/src/lib/**

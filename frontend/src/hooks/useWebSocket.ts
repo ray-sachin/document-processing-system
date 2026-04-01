@@ -6,8 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { ProgressEvent } from '@/types';
-
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || '';
+import { resolveWsBaseUrl } from '@/lib/runtime-config';
 
 interface UseWebSocketOptions {
   jobId: string;
@@ -30,19 +29,6 @@ export function useWebSocket({
   const [lastEvent, setLastEvent] = useState<ProgressEvent | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 3;
-
-  const resolveWsBaseUrl = useCallback(() => {
-    if (WS_URL) {
-      return WS_URL;
-    }
-
-    if (typeof window !== 'undefined') {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      return `${protocol}//${window.location.host}`;
-    }
-
-    return 'ws://localhost:8000';
-  }, []);
 
   const connect = useCallback(() => {
     if (!jobId || !accessToken || wsRef.current?.readyState === WebSocket.OPEN) {
@@ -116,7 +102,7 @@ export function useWebSocket({
     };
 
     wsRef.current = ws;
-  }, [jobId, accessToken, onProgress, onComplete, onError, lastEvent?.status, resolveWsBaseUrl]);
+  }, [jobId, accessToken, onProgress, onComplete, onError, lastEvent?.status]);
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {

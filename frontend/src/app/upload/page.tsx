@@ -47,7 +47,7 @@ export default function UploadPage() {
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       <Header />
-      <main className="flex-1 container py-8">
+      <main className="app-shell flex-1 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <Link href="/documents" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">

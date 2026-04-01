@@ -25,6 +25,8 @@ export function useDocuments(filters?: Partial<DocumentFilters>) {
   } = useDocumentStore();
 
   const activeFilters = { ...storeFilters, ...filters };
+  const hasActiveDocuments = (items?: Array<{ latest_job_status?: string | null }>) =>
+    !!items?.some((item) => ['queued', 'processing'].includes(item.latest_job_status || ''));
 
   // Fetch documents
   const documentsQuery = useQuery({
@@ -45,6 +47,10 @@ export function useDocuments(filters?: Partial<DocumentFilters>) {
       }
     },
     staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: true,
+    refetchInterval: (query) =>
+      hasActiveDocuments(query.state.data?.items) ? 3000 : false,
+    refetchIntervalInBackground: true,
   });
 
   // Upload mutation
@@ -124,6 +130,11 @@ export function useDocument(id: string) {
       return job;
     },
     enabled: !!documentQuery.data?.latest_job_id,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status || documentQuery.data?.latest_job_status;
+      return status && ['queued', 'processing'].includes(status) ? 2000 : false;
+    },
+    refetchIntervalInBackground: true,
   });
 
   const resultQuery = useQuery({

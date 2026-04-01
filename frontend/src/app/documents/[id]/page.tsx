@@ -114,7 +114,7 @@ export default function DocumentDetailPage() {
     return (
       <div className="flex min-h-screen flex-col bg-muted/30">
         <Header />
-        <main className="flex-1 container py-12">
+        <main className="app-shell flex-1 py-12">
           <Card className="max-w-md mx-auto p-8 text-center">
             <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-2xl font-bold mb-2">Document not found</h2>
@@ -194,7 +194,7 @@ export default function DocumentDetailPage() {
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       <Header />
-      <main className="flex-1 container py-8">
+      <main className="app-shell flex-1 py-8">
         {/* Breadcrumb & Header */}
         <div className="mb-8">
           <Link 
