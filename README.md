@@ -2,9 +2,14 @@
 
 Production-style full-stack document workflow for asynchronous processing, live progress tracking, review/finalization, and JSON/CSV export.
 
+Detailed walkthroughs:
+
+- [System architecture](docs/ARCHITECTURE.md)
+- [Deployment guide](docs/DEPLOYMENT.md)
+
 ## What This Project Covers
 
-- Multi-file upload for PDF, DOCX, TXT, CSV, PNG, JPG, and JPEG
+- Multi-file upload for PDF, DOCX, TXT, CSV, PNG, JPG, JPEG, GIF, WEBP, BMP, and TIFF
 - Background processing with Celery workers
 - Progress updates through Redis Pub/Sub and WebSocket/SSE delivery
 - Review and edit flow for extracted fields
@@ -63,6 +68,7 @@ document-processing-system/
 │   │   ├── store/
 │   │   └── types/
 │   └── __tests__/
+├── docs/
 ├── nginx/
 ├── sample-files/
 ├── sample-outputs/
@@ -265,16 +271,15 @@ Supabase is intended for PostgreSQL hosting only in this setup. Auth, file stora
 ## Assumptions
 
 - Single-tenant user-scoped app
-- Background processing architecture is the main evaluation target, not OCR quality
 - Local file storage is acceptable for the project unless object storage is explicitly needed
 - Export happens after review/finalization, but batch export can still be filtered by finalized status
 
 ## Tradeoffs
 
-- Celery + Redis is heavier than a simpler queue, but fits the assignment requirement and gives retry orchestration
+- Celery + Redis is heavier than a simpler queue, but it provides explicit retry orchestration and live progress plumbing
 - Tests use SQLite for portability, while production remains PostgreSQL-first
 - Frontend client defaults to same-origin APIs for easier reverse-proxy deployment
-- Document parsing is intentionally pragmatic and assignment-scoped rather than OCR-heavy
+- OCR is optimized for common business documents and scans, but it is still a pragmatic application-layer implementation rather than a specialized document-intelligence platform
 
 ## Limitations
 
@@ -284,6 +289,6 @@ Supabase is intended for PostgreSQL hosting only in this setup. Auth, file stora
 - File storage defaults to the local filesystem
 - Docker runtime verification depends on Docker daemon availability on the host
 
-## AI Usage Note
+## Development Note
 
-AI tooling was used during development and polish to accelerate implementation, debugging, test repair, documentation cleanup, and UI refinement. The resulting code was manually reviewed, tested, and adjusted to fit the project requirements.
+Automation-assisted tooling was used during implementation for debugging, refactoring, documentation cleanup, and UI polish. The shipping code paths, tests, and deployment setup were then reviewed and validated manually.

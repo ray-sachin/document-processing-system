@@ -11,6 +11,20 @@ from app.services.ocr_service import ocr_service
 
 class PDFProcessor(BaseProcessor):
     """Processor for PDF files."""
+
+    @staticmethod
+    def _merge_text_blocks(*blocks: str) -> str:
+        unique_blocks = []
+        seen = set()
+
+        for block in blocks:
+            normalized = (block or "").strip()
+            if not normalized or normalized in seen:
+                continue
+            seen.add(normalized)
+            unique_blocks.append(normalized)
+
+        return "\n\n".join(unique_blocks).strip()
     
     def parse(self, content: bytes, filename: str) -> Dict[str, Any]:
         """Parse PDF file content."""
@@ -21,12 +35,19 @@ class PDFProcessor(BaseProcessor):
             "average_confidence": None,
             "pages_processed": 0,
         }
+        text_layer_result = {
+            "text": "",
+            "available": False,
+            "engine": None,
+            "pages_processed": 0,
+        }
 
         try:
             from pypdf import PdfReader
             
             pdf_file = io.BytesIO(content)
             reader = PdfReader(pdf_file)
+            page_count = len(reader.pages)
             
             # Extract text from all pages
             text_parts = []
@@ -38,7 +59,7 @@ class PDFProcessor(BaseProcessor):
                 if page_text:
                     text_parts.append(page_text.strip())
             
-            raw_text = "\n\n".join(part for part in text_parts if part)
+            raw_text = self._merge_text_blocks(*text_parts)
             
             # Get metadata
             pdf_metadata = {}
@@ -53,30 +74,42 @@ class PDFProcessor(BaseProcessor):
                 # Clean None values
                 pdf_metadata = {k: v for k, v in pdf_metadata.items() if v}
 
-            if len(raw_text.split()) < 30:
-                ocr_result = ocr_service.extract_text_from_pdf(content)
-                if ocr_result["text"]:
-                    raw_text = "\n\n".join(
-                        part
-                        for part in [raw_text.strip(), "[OCR Fallback]", ocr_result["text"].strip()]
-                        if part
-                    )
+            text_layer_result = ocr_service.extract_text_layer_from_pdf(content, max_pages=min(page_count or 6, 6))
+            raw_text = self._merge_text_blocks(raw_text, text_layer_result["text"])
+
+            if len(raw_text.split()) < 40:
+                ocr_result = ocr_service.extract_text_from_pdf(
+                    content,
+                    max_pages=5 if page_count <= 10 else 3,
+                )
+                raw_text = self._merge_text_blocks(raw_text, ocr_result["text"])
+
+            text_sources = []
+            if text_parts:
+                text_sources.append("pypdf")
+            if text_layer_result["text"]:
+                text_sources.append("pymupdf")
+            if ocr_result["text"]:
+                text_sources.append("ocr")
             
             return {
                 "raw_text": raw_text,
-                "page_count": len(reader.pages),
+                "page_count": page_count,
                 "pdf_metadata": pdf_metadata,
                 "has_content": bool(raw_text.strip()),
                 "ocr_used": bool(ocr_result["text"]),
                 "ocr_engine": ocr_result["engine"],
                 "ocr_confidence": ocr_result["average_confidence"],
                 "ocr_pages_processed": ocr_result["pages_processed"],
+                "text_layer_used": bool(text_layer_result["text"]),
+                "text_layer_pages_processed": text_layer_result["pages_processed"],
+                "text_sources": text_sources,
             }
             
         except Exception as e:
+            text_layer_result = ocr_service.extract_text_layer_from_pdf(content, max_pages=4)
             ocr_result = ocr_service.extract_text_from_pdf(content)
-            raw_text = ocr_result["text"] or f"[PDF parsing failed: {str(e)}]"
-            # If PDF parsing fails, return empty result
+            raw_text = self._merge_text_blocks(text_layer_result["text"], ocr_result["text"])
             return {
                 "raw_text": raw_text,
                 "page_count": 0,
@@ -87,6 +120,9 @@ class PDFProcessor(BaseProcessor):
                 "ocr_engine": ocr_result["engine"],
                 "ocr_confidence": ocr_result["average_confidence"],
                 "ocr_pages_processed": ocr_result["pages_processed"],
+                "text_layer_used": bool(text_layer_result["text"]),
+                "text_layer_pages_processed": text_layer_result["pages_processed"],
+                "text_sources": [source for source, present in [("pymupdf", bool(text_layer_result["text"])), ("ocr", bool(ocr_result["text"]))] if present],
             }
     
     def extract(self, parsed_data: Dict[str, Any], document: Document) -> Dict[str, Any]:
@@ -113,6 +149,9 @@ class PDFProcessor(BaseProcessor):
             "ocr_engine": parsed_data.get("ocr_engine"),
             "ocr_confidence": parsed_data.get("ocr_confidence"),
             "ocr_pages_processed": parsed_data.get("ocr_pages_processed", 0),
+            "text_layer_used": parsed_data.get("text_layer_used", False),
+            "text_layer_pages_processed": parsed_data.get("text_layer_pages_processed", 0),
+            "text_sources": parsed_data.get("text_sources", []),
         }
         
         return {

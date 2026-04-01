@@ -204,7 +204,7 @@ export default function HomePage() {
       </main>
 
       <footer className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em]">Submission-ready async document workflow</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em]">Queue-backed document operations</p>
       </footer>
     </div>
   );

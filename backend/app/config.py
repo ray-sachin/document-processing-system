@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     
     # File upload limits
     MAX_FILE_SIZE_MB: int = 50
-    ALLOWED_EXTENSIONS: str = "pdf,docx,txt,csv,png,jpg,jpeg"
+    ALLOWED_EXTENSIONS: str = "pdf,docx,txt,csv,png,jpg,jpeg,gif,webp,bmp,tif,tiff"
     
     @property
     def allowed_extensions_list(self) -> List[str]:

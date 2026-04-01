@@ -1,5 +1,5 @@
 """
-Image Processor - Handle image files with simulated OCR
+Image Processor - Handle image files with OCR-first parsing.
 """
 from typing import Dict, Any
 import io
@@ -13,8 +13,8 @@ class ImageProcessor(BaseProcessor):
     """
     Processor for image files (PNG, JPG, JPEG, GIF).
     
-    Uses RapidOCR when available, with a deterministic fallback so
-    image-heavy uploads still complete instead of failing silently.
+    Uses RapidOCR when available and falls back to metadata-only indexing
+    when no reliable text can be detected.
     """
     
     def parse(self, content: bytes, filename: str) -> Dict[str, Any]:
@@ -52,7 +52,7 @@ class ImageProcessor(BaseProcessor):
                 pass
             
             ocr_result = ocr_service.extract_text_from_image(content)
-            raw_text = ocr_result["text"] or self._simulate_ocr(filename, width, height, format_type)
+            raw_text = ocr_result["text"]
             
             return {
                 "raw_text": raw_text,
@@ -63,15 +63,16 @@ class ImageProcessor(BaseProcessor):
                 "aspect_ratio": aspect_ratio,
                 "exif_data": exif_data,
                 "has_content": bool(raw_text.strip()),
-                "is_simulated": not bool(ocr_result["text"]),
+                "ocr_status": "text_extracted" if raw_text.strip() else "no_text_detected",
                 "ocr_engine": ocr_result["engine"],
                 "ocr_confidence": ocr_result["average_confidence"],
                 "ocr_line_count": ocr_result["line_count"],
+                "ocr_variant": ocr_result.get("variant"),
             }
             
         except Exception as e:
             return {
-                "raw_text": f"[Image processing failed: {str(e)}]",
+                "raw_text": "",
                 "width": 0,
                 "height": 0,
                 "format": None,
@@ -79,37 +80,9 @@ class ImageProcessor(BaseProcessor):
                 "aspect_ratio": 0,
                 "exif_data": {},
                 "has_content": False,
+                "ocr_status": "processing_error",
                 "error": str(e)
             }
-    
-    def _simulate_ocr(self, filename: str, width: int, height: int, format_type: str) -> str:
-        """
-        Simulate OCR output for demonstration purposes.
-        
-        In production, this would call actual OCR services.
-        """
-        # Generate realistic-looking OCR output
-        import os
-        base_name = os.path.splitext(filename)[0]
-        
-        simulated_text = f"""[Simulated OCR Output for: {filename}]
-
-Image Analysis:
-- Dimensions: {width}x{height} pixels
-- Format: {format_type}
-- Resolution: {'High' if width > 1000 or height > 1000 else 'Standard'}
-
-Detected Content Regions:
-- Text regions: {'Multiple' if width > 500 else 'Limited'}
-- Image clarity: {'Clear' if format_type == 'PNG' else 'Standard'}
-
-Extracted Text (Simulated):
-{base_name.replace('_', ' ').replace('-', ' ').title()}
-
-Note: This is a simulated OCR output for demonstration purposes.
-In production, integrate with Tesseract, Google Vision, or AWS Textract.
-"""
-        return simulated_text
     
     def extract(self, parsed_data: Dict[str, Any], document: Document) -> Dict[str, Any]:
         """Extract structured data from image content."""
@@ -142,10 +115,10 @@ In production, integrate with Tesseract, Google Vision, or AWS Textract.
         summary = f"Image file ({parsed_data.get('format', 'unknown')}) with dimensions " \
                   f"{parsed_data.get('width', 0)}x{parsed_data.get('height', 0)} pixels. "
         
-        if parsed_data.get("is_simulated"):
-            summary += "OCR fallback used a generated placeholder because no readable text was detected."
+        if parsed_data.get("has_content"):
+            summary += "Readable text was extracted from the image and indexed for review."
         else:
-            summary += "Text extracted directly from the image."
+            summary += "No reliable text was detected, so the record was indexed from image metadata and filename context."
 
         metadata = {
             "file_type": document.file_type,
@@ -156,10 +129,12 @@ In production, integrate with Tesseract, Google Vision, or AWS Textract.
             "mode": parsed_data.get("mode"),
             "aspect_ratio": parsed_data.get("aspect_ratio", 0),
             "exif_data": parsed_data.get("exif_data", {}),
-            "ocr_simulated": parsed_data.get("is_simulated", True),
+            "text_detected": parsed_data.get("has_content", False),
+            "ocr_status": parsed_data.get("ocr_status"),
             "ocr_engine": parsed_data.get("ocr_engine"),
             "ocr_confidence": parsed_data.get("ocr_confidence"),
             "ocr_line_count": parsed_data.get("ocr_line_count", 0),
+            "ocr_variant": parsed_data.get("ocr_variant"),
         }
         
         return {

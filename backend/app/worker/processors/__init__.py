@@ -20,6 +20,10 @@ PROCESSORS = {
     "jpg": ImageProcessor(),
     "jpeg": ImageProcessor(),
     "gif": ImageProcessor(),
+    "webp": ImageProcessor(),
+    "bmp": ImageProcessor(),
+    "tif": ImageProcessor(),
+    "tiff": ImageProcessor(),
 }
 
 

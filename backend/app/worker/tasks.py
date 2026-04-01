@@ -145,21 +145,27 @@ def process_document(self, job_id: str):
         update_job_status(db, job, JobStatus.PROCESSING.value, 90,
                          ProcessingStage.STORING_RESULT.value)
         
-        # Create processed result
-        result = ProcessedResult(
-            job_id=job.id,
-            document_id=document.id,
-            extracted_title=extracted_data.get("title"),
-            extracted_category=extracted_data.get("category"),
-            extracted_summary=extracted_data.get("summary"),
-            extracted_keywords=extracted_data.get("keywords"),
-            extracted_metadata=extracted_data.get("metadata"),
-            raw_text=extracted_data.get("raw_text"),
-            structured_data=extracted_data.get("structured_data")
-        )
-        
-        db.add(result)
+        # Upsert processed result so retries do not fail on an existing row.
+        result = db.query(ProcessedResult).filter(ProcessedResult.job_id == job.id).first()
+
+        if result is None:
+            result = ProcessedResult(
+                job_id=job.id,
+                document_id=document.id,
+            )
+            db.add(result)
+
+        result.document_id = document.id
+        result.extracted_title = extracted_data.get("title")
+        result.extracted_category = extracted_data.get("category")
+        result.extracted_summary = extracted_data.get("summary")
+        result.extracted_keywords = extracted_data.get("keywords")
+        result.extracted_metadata = extracted_data.get("metadata")
+        result.raw_text = extracted_data.get("raw_text")
+        result.structured_data = extracted_data.get("structured_data")
+
         db.commit()
+        db.refresh(result)
         time.sleep(0.5)
         
         # Stage 7: Job Completed (100%)

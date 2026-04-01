@@ -9,7 +9,7 @@ export function Footer() {
           </p>
         </div>
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          {new Date().getFullYear()} • Summer Training Submission
+          {new Date().getFullYear()} • Async review workflow
         </p>
       </div>
     </footer>
