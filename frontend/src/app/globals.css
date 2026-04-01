@@ -60,7 +60,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans), sans-serif;
+    font-family: "Aptos", "Segoe UI Variable", "Segoe UI", "Trebuchet MS", sans-serif;
     background-image:
       radial-gradient(circle at top left, rgba(32, 75, 110, 0.10), transparent 24rem),
       radial-gradient(circle at bottom right, rgba(196, 167, 106, 0.10), transparent 20rem),
@@ -71,7 +71,7 @@
   code,
   pre,
   .font-mono {
-    font-family: var(--font-mono), monospace;
+    font-family: "Cascadia Mono", "Cascadia Code", "Consolas", "SFMono-Regular", monospace;
   }
 
   ::selection {
